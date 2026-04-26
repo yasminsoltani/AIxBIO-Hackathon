@@ -339,7 +339,7 @@ const framework = {
       ]
     },
     {
-      name: "Law 3 — Evolve",
+      name: "Law 3",
       label: "Law 3",
       desc: "A biotool's governance framework shall be versioned and periodically reassessed as capabilities evolve. Governance is a living system, not a one-time checkbox.",
       color: "#854F0B",
@@ -386,28 +386,14 @@ const root = d3.hierarchy(framework)
   .sum(d => d.value || (d.children ? 0 : 1))
   .sort((a, b) => b.value - a.value);
 
-// CHANGED: custom radii so outermost ring gets ~60% of total radius
-const totalR = R - 16;
-const radii = [0, totalR * 0.20, totalR * 0.40, totalR];
-
-const partition = d3.partition().size([2 * Math.PI, 3]);
+const partition = d3.partition().size([2 * Math.PI, R - 20]);
 partition(root);
 
-function innerR(d) {
-  if (d.depth === 0) return 0;
-  const r = radii[d.depth - 1];
-  return r < 2 ? 0 : r + 4;
-}
-function outerR(d) {
-  return radii[d.depth] - 3;
-}
-
-// CHANGED: innerRadius/outerRadius now use custom functions
 const arc = d3.arc()
   .startAngle(d => d.x0)
   .endAngle(d => d.x1)
-  .innerRadius(d => innerR(d))
-  .outerRadius(d => outerR(d))
+  .innerRadius(d => d.y0 === 0 ? 0 : d.y0 + 4)
+  .outerRadius(d => d.y1 - 3)
   .padAngle(0.012)
   .cornerRadius(3);
 
@@ -470,6 +456,7 @@ g.selectAll('.arc')
 function wrapArcLabel(textEl, words, arcWidth, fontSize) {
   textEl.text(null);
   if (!words.length) return;
+  // depth 2 segments are narrower radially, use tighter char estimate
   const charFactor = fontSize <= 11 ? 0.52 : 0.58;
   const charsPerLine = Math.max(4, Math.floor(arcWidth / (fontSize * charFactor)));
   const lines = [];
@@ -491,16 +478,15 @@ function wrapArcLabel(textEl, words, arcWidth, fontSize) {
   });
 }
 
-// CHANGED: transform and arcWidth/radialHeight now use radii[] instead of d.y0/d.y1
 g.selectAll('.arc-label')
   .data(root.descendants().filter(d => d.depth > 0))
   .join('text')
   .attr('class', 'arc-label')
   .attr('transform', d => {
     const angle = (d.x0 + d.x1) / 2;
-    const midR = (radii[d.depth - 1] + radii[d.depth]) / 2;
+    const r = (d.y0 + d.y1) / 2;
     const deg = (angle * 180 / Math.PI) - 90;
-    return `rotate(${deg}) translate(${midR},0) rotate(${deg > 90 && deg < 270 ? 180 : 0})`;
+    return `rotate(${deg}) translate(${r},0) rotate(${deg > 90 && deg < 270 ? 180 : 0})`;
   })
   .attr('text-anchor', 'middle')
   .attr('dominant-baseline', 'central')
@@ -509,9 +495,9 @@ g.selectAll('.arc-label')
   .attr('fill', d => d.depth === 1 ? '#ffffff' : 'rgba(255,255,255,0.88)')
   .each(function(d) {
     const arcAngle = d.x1 - d.x0;
-    const midR = (radii[d.depth - 1] + radii[d.depth]) / 2;
-    const arcWidth = arcAngle * midR;
-    const radialHeight = radii[d.depth] - radii[d.depth - 1];
+    const r = (d.y0 + d.y1) / 2;
+    const arcWidth = arcAngle * r;
+    const radialHeight = d.y1 - d.y0;
     const fontSize = d.depth === 1 ? 13 : d.depth === 2 ? 11 : 9;
     if (arcWidth < 12 || radialHeight < 10) return;
     const name = d.data.name
