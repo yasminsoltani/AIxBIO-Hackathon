@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Three Laws of AI Biosafety</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --purple-dark:  #3C3489;
+    --purple-mid:   #534AB7;
+    --purple-light: #AFA9EC;
+    --purple-pale:  #EEEDFE;
+    --teal-dark:    #085041;
+    --teal-mid:     #0F6E56;
+    --teal-light:   #5DCAA5;
+    --teal-pale:    #E1F5EE;
+    --amber-dark:   #633806;
+    --amber-mid:    #854F0B;
+    --amber-light:  #EF9F27;
+    --amber-pale:   #FAEEDA;
+    --gray-dark:    #2C2C2A;
+    --gray-mid:     #5F5E5A;
+    --gray-light:   #D3D1C7;
+    --gray-pale:    #F1EFE8;
+    --bg:           #0e0e0f;
+    --surface:      #161618;
+    --border:       rgba(255,255,255,0.07);
+    --text:         #e8e6e0;
+    --text-muted:   #888780;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr;
+  }
+
+  header {
+    padding: 2.5rem 3rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .header-title h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  .header-title h1 em {
+    font-style: italic;
+    color: var(--purple-light);
+  }
+
+  .header-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-align: right;
+    line-height: 1.8;
+    white-space: nowrap;
+  }
+
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .chart-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+  }
+
+  #sunburst {
+    width: 100%;
+    max-width: 540px;
+    aspect-ratio: 1;
+  }
+
+  .arc path {
+    cursor: pointer;
+    transition: opacity 0.18s ease, filter 0.18s ease;
+  }
+
+  .arc path:hover {
+    filter: brightness(1.15);
+    opacity: 1 !important;
+  }
+
+  .arc-label {
+    pointer-events: none;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    fill: rgba(255,255,255,0.85);
+  }
+
+  .center-label {
+    pointer-events: none;
+    font-family: 'DM Serif Display', serif;
+  }
+
+  .sidebar {
+    border-left: 1px solid var(--border);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow-y: auto;
+  }
+
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    transition: all 0.25s ease;
+  }
+
+  .info-card.active {
+    border-color: var(--accent-color, var(--purple-mid));
+    background: var(--accent-bg, rgba(83,74,183,0.08));
+  }
+
+  .info-card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .info-card-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+    line-height: 1.3;
+  }
+
+  .info-card-desc {
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--text-muted);
+  }
+
+  .legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+
+  .legend-item:hover { background: var(--surface); }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    opacity: 0.6;
+    text-align: center;
+    padding: 0.5rem 0;
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    opacity: 0.5;
+  }
+
+  @media (max-width: 800px) {
+    .main { grid-template-columns: 1fr; }
+    .sidebar { border-left: none; border-top: 1px solid var(--border); }
+    header { flex-direction: column; align-items: flex-start; }
+    .header-meta { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">
+    <h1>The <em>Three Laws</em> of AI Biosafety</h1>
+  </div>
+  <div class="header-meta">
+    AIxBio Hackathon 2026<br>
+    Track 3 — AI Biosecurity Tools<br>
+    Governance Framework
+  </div>
+</header>
+
+<div class="main">
+  <div class="chart-area">
+    <svg id="sunburst"></svg>
+  </div>
+
+  <div class="sidebar">
+    <div class="info-card active" id="info-card" style="--accent-color: #534AB7; --accent-bg: rgba(83,74,183,0.08);">
+      <div class="info-card-label" id="info-label">Framework</div>
+      <div class="info-card-name" id="info-name">Three Laws of AI Biosafety</div>
+      <div class="info-card-desc" id="info-desc">A constitutional governance framework for AI biodesign tools, structured as three hierarchical laws inspired by Asimov's Laws of Robotics. Hover over any segment to explore.</div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#534AB7"></div>Law 1 — Characterize</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#0F6E56"></div>Law 2 — Govern</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#854F0B"></div>Law 3 — Evolve</div>
+    </div>
+
+    <p class="hint">← hover any arc to explore</p>
+  </div>
+</div>
+
+<footer>
+  <span>Three Laws of AI Biosafety — Interactive Framework</span>
+  <span>Built with D3.js</span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+const framework = {
+  name: "Three Laws of AI Biosafety",
+  label: "Framework",
+  desc: "A constitutional governance framework for AI biodesign tools, structured as three hierarchical laws. Each law builds on the previous, forming a living governance system.",
+  color: "#888780",
+  children: [
+    {
+      name: "Law 1 — Characterize",
+      label: "Law 1",
+      desc: "A biotool shall not be deployed unless its capabilities and risk profile have been fully characterized. Assessment precedes governance.",
+      color: "#534AB7",
+      children: [
+        {
+          name: "AI capability characterization",
+          label: "Sub-pillar",
+          desc: "Formally mapping what an AI biodesign tool can do, including its biological function categories, dual-use potential, and ability to generalize beyond its intended domain.",
+          color: "#7F77DD",
+          children: [
+            { name: "Use cases", label: "Outer element", desc: "Mapping the tool to RAND's eight biological function categories: viral vector design, protein engineering, genome design, pathogen prediction, and more.", color: "#AFA9EC", value: 1 },
+            { name: "Dual-use potential", label: "Outer element", desc: "Assessing the gap between the tool's intended purpose and what it could be used for by a malicious actor.", color: "#AFA9EC", value: 1 },
+            { name: "Generalizability", label: "Outer element", desc: "Evaluating whether the tool's capabilities extend beyond its intended biological domain — a critical risk factor identified in NTI research.", color: "#AFA9EC", value: 1 }
+          ]
+        },
+        {
+          name: "Technological maturity",
+          label: "Sub-pillar",
+          desc: "Assessing the technical readiness, validation status, and performance reliability of an AI biodesign tool prior to deployment.",
+          color: "#7F77DD",
+          children: [
+            { name: "Scientific readiness", label: "Outer element", desc: "How well validated is the underlying science through peer-reviewed research or independent evaluation.", color: "#AFA9EC", value: 1 },
+            { name: "Development stage", label: "Outer element", desc: "Whether the tool is experimental, in beta, production-ready, or fully mature with versioned releases.", color: "#AFA9EC", value: 1 },
+            { name: "Performance reliability", label: "Outer element", desc: "How consistently the tool produces accurate outputs across different use conditions and contexts.", color: "#AFA9EC", value: 1 }
+          ]
+        },
+        {
+          name: "Availability",
+          label: "Sub-pillar",
+          desc: "Describing the current accessibility landscape of the tool — how it is distributed, what barriers exist, and how widely it reaches across regions and institutions.",
+          color: "#7F77DD",
+          children: [
+            { name: "Distribution format", label: "Outer element", desc: "Whether the tool is open source, API-gated, downloadable, cloud-based, or managed platform — purely descriptive, not prescriptive.", color: "#AFA9EC", value: 1 },
+            { name: "Deployment barriers", label: "Outer element", desc: "Technical and institutional friction that currently limits access, informing how access controls in Law 2 should be calibrated.", color: "#AFA9EC", value: 1 },
+            { name: "Geographic reach", label: "Outer element", desc: "How widely the tool is accessed across different regions and institutional contexts, relevant for regulatory compliance strategies.", color: "#AFA9EC", value: 1 }
+          ]
+        }
+      ]
+    },
+    {
+      name: "Law 2 — Govern",
+      label: "Law 2",
+      desc: "A biotool shall operate under built-in constraints by default, with expanded access granted only to verified actors with demonstrated legitimate purpose.",
+      color: "#0F6E56",
+      children: [
+        {
+          name: "Technical safeguards",
+          label: "Sub-pillar",
+          desc: "Built-in constraints embedded in the tool itself — the inside-out layer of protection that travels with the tool regardless of who deploys it.",
+          color: "#1D9E75",
+          children: [
+            { name: "Input screening", label: "Outer element", desc: "Controls on what the tool accepts as a query — detecting and filtering potentially harmful intent at the point of entry.", color: "#5DCAA5", value: 1 },
+            { name: "Output filtering", label: "Outer element", desc: "Controls on what the tool is permitted to generate — formal refusal criteria aligned to biosecurity risk frameworks.", color: "#5DCAA5", value: 1 },
+            { name: "Training constraints", label: "Outer element", desc: "Biosecurity considerations embedded during model development, including curated training data and responsible training methods.", color: "#5DCAA5", value: 1 }
+          ]
+        },
+        {
+          name: "Access control",
+          label: "Sub-pillar",
+          desc: "Governing who gets access to what capabilities — a tiered managed access system grounded in Know Your Customer principles from NTI.",
+          color: "#1D9E75",
+          children: [
+            { name: "Credential verification", label: "Outer element", desc: "Rigorously verifying the identity and professional credentials of users before granting access — like BSL-4 lab clearance processes.", color: "#5DCAA5", value: 1 },
+            { name: "Institutional legitimacy", label: "Outer element", desc: "Assessing the institutional context and oversight structure of users — not just who they are, but where they work and under what governance.", color: "#5DCAA5", value: 1 },
+            { name: "Purpose validation", label: "Outer element", desc: "Validating the stated purpose and intended use of users requesting expanded access — the 'why' alongside the 'who'.", color: "#5DCAA5", value: 1 }
+          ]
+        }
+      ]
+    },
+    {
+      name: "Law 3 — Evolve",
+      label: "Law 3",
+      desc: "A biotool's governance framework shall be versioned and periodically reassessed as capabilities evolve. Governance is a living system, not a one-time checkbox.",
+      color: "#854F0B",
+      children: [
+        {
+          name: "Adaptability",
+          label: "Sub-pillar",
+          desc: "The governance framework's capacity to keep pace with changes in the tool's capabilities, the broader scientific landscape, and the organization itself.",
+          color: "#BA7517",
+          children: [
+            { name: "Capability evolution", label: "Outer element", desc: "Monitoring and responding to changes in what the AI biodesign tool can do over time — new versions, emergent behaviors, capability jumps.", color: "#EF9F27", value: 1 },
+            { name: "Scientific advancement", label: "Outer element", desc: "Tracking emerging discoveries in adjacent fields that could shift the risk profile of the tool, even if the tool itself hasn't changed.", color: "#EF9F27", value: 1 },
+            { name: "Organisational change", label: "Outer element", desc: "Ensuring governance continuity during personnel, leadership, or structural transitions — institutionalizing knowledge so it doesn't walk out the door.", color: "#EF9F27", value: 1 }
+          ]
+        },
+        {
+          name: "Iteration",
+          label: "Sub-pillar",
+          desc: "The deliberate process of learning from experience and improving the governance framework — using data, reflection, and cross-sector collaboration.",
+          color: "#BA7517",
+          children: [
+            { name: "Systematic reflection", label: "Outer element", desc: "Evaluating the quality and effectiveness of past governance decisions — not just updating controls, but asking whether the right decisions were made.", color: "#EF9F27", value: 1 },
+            { name: "Feedback loop", label: "Outer element", desc: "Collecting and applying usage data and incident reports to drive evidence-based governance improvements over time.", color: "#EF9F27", value: 1 },
+            { name: "Cross-sector collaboration", label: "Outer element", desc: "Actively engaging with peers, regulators, and the broader biosecurity community — grounded in RAND's recommendation for regular cross-sector convenings.", color: "#EF9F27", value: 1 }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+const el = document.getElementById('sunburst');
+const size = Math.min(el.parentElement.clientWidth - 64, 540);
+const R = size / 2;
+
+const svg = d3.select('#sunburst')
+  .attr('viewBox', `0 0 ${size} ${size}`)
+  .attr('width', size)
+  .attr('height', size);
+
+const g = svg.append('g').attr('transform', `translate(${R},${R})`);
+
+const root = d3.hierarchy(framework)
+  .sum(d => d.value || (d.children ? 0 : 1))
+  .sort((a, b) => b.value - a.value);
+
+const partition = d3.partition().size([2 * Math.PI, R - 20]);
+partition(root);
+
+const arc = d3.arc()
+  .startAngle(d => d.x0)
+  .endAngle(d => d.x1)
+  .innerRadius(d => d.y0 === 0 ? 0 : d.y0 + 4)
+  .outerRadius(d => d.y1 - 3)
+  .padAngle(0.012)
+  .cornerRadius(3);
+
+const infoLabel = document.getElementById('info-label');
+const infoName  = document.getElementById('info-name');
+const infoDesc  = document.getElementById('info-desc');
+const card      = document.getElementById('info-card');
+
+function getAccentColor(d) {
+  if (!d.parent) return '#888780';
+  let node = d;
+  while (node.depth > 1) node = node.parent;
+  return node.data.color;
+}
+
+function getAccentBg(color) {
+  const map = {
+    '#534AB7': 'rgba(83,74,183,0.1)',
+    '#0F6E56': 'rgba(15,110,86,0.1)',
+    '#854F0B': 'rgba(133,79,11,0.1)',
+  };
+  return map[color] || 'rgba(136,135,128,0.08)';
+}
+
+g.selectAll('.arc')
+  .data(root.descendants().filter(d => d.depth > 0))
+  .join('g')
+  .attr('class', 'arc')
+  .append('path')
+  .attr('d', arc)
+  .attr('fill', d => d.data.color)
+  .attr('fill-opacity', d => 1 - (d.depth - 1) * 0.05)
+  .attr('stroke', 'rgba(0,0,0,0.25)')
+  .attr('stroke-width', 0.5)
+  .on('mouseenter', function(event, d) {
+    const accent = getAccentColor(d);
+    card.style.setProperty('--accent-color', accent);
+    card.style.setProperty('--accent-bg', getAccentBg(accent));
+    infoLabel.textContent = d.data.label || 'Element';
+    infoName.textContent  = d.data.name;
+    infoDesc.textContent  = d.data.desc || '';
+    d3.selectAll('.arc path').attr('opacity', 0.35);
+    d3.select(this).attr('opacity', 1);
+    let node = d;
+    while (node.parent && node.depth > 1) {
+      node = node.parent;
+      d3.selectAll('.arc path').filter(p => p === node).attr('opacity', 0.8);
+    }
+  })
+  .on('mouseleave', function() {
+    d3.selectAll('.arc path').attr('opacity', 1);
+    infoLabel.textContent = 'Framework';
+    infoName.textContent  = 'Three Laws of AI Biosafety';
+    infoDesc.textContent  = 'A constitutional governance framework for AI biodesign tools, structured as three hierarchical laws inspired by Asimov\'s Laws of Robotics. Hover over any segment to explore.';
+    card.style.setProperty('--accent-color', '#534AB7');
+    card.style.setProperty('--accent-bg', 'rgba(83,74,183,0.08)');
+  });
+
+g.selectAll('.arc-label')
+  .data(root.descendants().filter(d => d.depth > 0 && (d.x1 - d.x0) > 0.2))
+  .join('text')
+  .attr('class', 'arc-label')
+  .attr('transform', d => {
+    const angle = (d.x0 + d.x1) / 2;
+    const r = (d.y0 + d.y1) / 2;
+    const deg = (angle * 180 / Math.PI) - 90;
+    return `rotate(${deg}) translate(${r},0) rotate(${deg > 90 && deg < 270 ? 180 : 0})`;
+  })
+  .attr('text-anchor', 'middle')
+  .attr('dy', '0.35em')
+  .attr('font-size', d => d.depth === 1 ? 11 : d.depth === 2 ? 10 : 9)
+  .attr('font-weight', d => d.depth === 1 ? 600 : 500)
+  .attr('fill', d => d.depth === 1 ? '#ffffff' : 'rgba(255,255,255,0.8)')
+  .text(d => {
+    const name = d.data.name.replace('Law 1 — ','L1 ').replace('Law 2 — ','L2 ').replace('Law 3 — ','L3 ');
+    const arcLen = (d.x1 - d.x0) * ((d.y0 + d.y1) / 2);
+    if (arcLen < 30) return '';
+    if (name.length > 16 && arcLen < 60) return name.split(' ')[0] + '…';
+    return name;
+  });
+
+g.append('text')
+  .attr('class', 'center-label')
+  .attr('text-anchor', 'middle')
+  .attr('dy', '-0.3em')
+  .attr('font-size', 13)
+  .attr('font-weight', 400)
+  .attr('fill', '#e8e6e0')
+  .text('Three Laws');
+
+g.append('text')
+  .attr('class', 'center-label')
+  .attr('text-anchor', 'middle')
+  .attr('dy', '1em')
+  .attr('font-size', 11)
+  .attr('fill', '#888780')
+  .text('AI Biosafety');
+</script>
+</body>
+</html>
