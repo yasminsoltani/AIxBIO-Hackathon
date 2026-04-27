@@ -285,14 +285,14 @@ const framework = {
           ]
         },
         {
-          name: "Tech maturity",
+          name: "Technical maturity",
           label: "Sub-pillar",
           desc: "Assessing the technical readiness, validation status, and performance reliability of an AI biodesign tool prior to deployment.",
           color: "#7F77DD",
           children: [
-            { name: "Sci. readiness", label: "Outer element", desc: "How well validated is the underlying science through peer-reviewed research or independent evaluation.", color: "#AFA9EC", value: 1 },
-            { name: "Dev. stage", label: "Outer element", desc: "Whether the tool is experimental, in beta, production-ready, or fully mature with versioned releases.", color: "#AFA9EC", value: 1 },
-            { name: "Performance", label: "Outer element", desc: "How consistently the tool produces accurate outputs across different use conditions and contexts.", color: "#AFA9EC", value: 1 }
+            { name: "Scientific readiness", label: "Outer element", desc: "How well validated is the underlying science through peer-reviewed research or independent evaluation.", color: "#AFA9EC", value: 1 },
+            { name: "Performance", label: "Outer element", desc: "How consistently the tool produces accurate outputs across different use conditions and contexts.", color: "#AFA9EC", value: 1 },
+           { name: "Development stage", label: "Outer element", desc: "Whether the tool is experimental, in beta, production-ready, or fully mature with versioned releases.", color: "#AFA9EC", value: 1 }
           ]
         },
         {
@@ -303,7 +303,7 @@ const framework = {
           children: [
             { name: "Distribution", label: "Outer element", desc: "Whether the tool is open source, API-gated, downloadable, cloud-based, or managed platform — purely descriptive, not prescriptive.", color: "#AFA9EC", value: 1 },
             { name: "Deploy barriers", label: "Outer element", desc: "Technical and institutional friction that currently limits access, informing how access controls in Law 2 should be calibrated.", color: "#AFA9EC", value: 1 },
-            { name: "Geo. reach", label: "Outer element", desc: "How widely the tool is accessed across different regions and institutional contexts, relevant for regulatory compliance strategies.", color: "#AFA9EC", value: 1 }
+            { name: "Geographic reach", label: "Outer element", desc: "How widely the tool is accessed across different regions and institutional contexts, relevant for regulatory compliance strategies.", color: "#AFA9EC", value: 1 }
           ]
         }
       ]
@@ -315,13 +315,14 @@ const framework = {
       color: "#0F6E56",
       children: [
         {
-          name: "Tech safeguards",
+          name: "Technical safeguards",
           label: "Sub-pillar",
           desc: "Built-in constraints embedded in the tool itself — the inside-out layer of protection that travels with the tool regardless of who deploys it.",
           color: "#1D9E75",
           children: [
-            { name: "Input screening", label: "Outer element", desc: "Controls on what the tool accepts as a query — detecting and filtering potentially harmful intent at the point of entry.", color: "#5DCAA5", value: 1 },
+            
             { name: "Output filtering", label: "Outer element", desc: "Controls on what the tool is permitted to generate — formal refusal criteria aligned to biosecurity risk frameworks.", color: "#5DCAA5", value: 1 },
+            { name: "Screening", label: "Outer element", desc: "Controls on what the tool accepts as a query — detecting and filtering potentially harmful intent at the point of entry.", color: "#5DCAA5", value: 1 },
             { name: "Training constraints", label: "Outer element", desc: "Biosecurity considerations embedded during model development, including curated training data and responsible training methods.", color: "#5DCAA5", value: 1 }
           ]
         },
@@ -331,9 +332,9 @@ const framework = {
           desc: "Governing who gets access to what capabilities — a tiered managed access system grounded in Know Your Customer principles from NTI.",
           color: "#1D9E75",
           children: [
-            { name: "Credential verif.", label: "Outer element", desc: "Rigorously verifying the identity and professional credentials of users before granting access — like BSL-4 lab clearance processes.", color: "#5DCAA5", value: 1 },
-            { name: "Institutional leg.", label: "Outer element", desc: "Assessing the institutional context and oversight structure of users — not just who they are, but where they work and under what governance.", color: "#5DCAA5", value: 1 },
-            { name: "Purpose valid.", label: "Outer element", desc: "Validating the stated purpose and intended use of users requesting expanded access — the 'why' alongside the 'who'.", color: "#5DCAA5", value: 1 }
+            { name: "Credential verification", label: "Outer element", desc: "Rigorously verifying the identity and professional credentials of users before granting access — like BSL-4 lab clearance processes.", color: "#5DCAA5", value: 1 },
+            { name: "Institutional legitimacy", label: "Outer element", desc: "Assessing the institutional context and oversight structure of users — not just who they are, but where they work and under what governance.", color: "#5DCAA5", value: 1 },
+            { name: "Purpose validation", label: "Outer element", desc: "Validating the stated purpose and intended use of users requesting expanded access — the 'why' alongside the 'who'.", color: "#5DCAA5", value: 1 }
           ]
         }
       ]
@@ -350,8 +351,8 @@ const framework = {
           desc: "The governance framework's capacity to keep pace with changes in the tool's capabilities, the broader scientific landscape, and the organization itself.",
           color: "#BA7517",
           children: [
-            { name: "Capability evol.", label: "Outer element", desc: "Monitoring and responding to changes in what the AI biodesign tool can do over time — new versions, emergent behaviors, capability jumps.", color: "#EF9F27", value: 1 },
-            { name: "Sci. advancement", label: "Outer element", desc: "Tracking emerging discoveries in adjacent fields that could shift the risk profile of the tool, even if the tool itself hasn't changed.", color: "#EF9F27", value: 1 },
+            { name: "Capability evolution", label: "Outer element", desc: "Monitoring and responding to changes in what the AI biodesign tool can do over time — new versions, emergent behaviors, capability jumps.", color: "#EF9F27", value: 1 },
+            { name: "Science advancement", label: "Outer element", desc: "Tracking emerging discoveries in adjacent fields that could shift the risk profile of the tool, even if the tool itself hasn't changed.", color: "#EF9F27", value: 1 },
             { name: "Org. continuity", label: "Outer element", desc: "Ensuring governance continuity during personnel, leadership, or structural transitions — institutionalizing knowledge so it doesn't walk out the door.", color: "#EF9F27", value: 1 }
           ]
         },
@@ -363,7 +364,7 @@ const framework = {
           children: [
             { name: "Reflection", label: "Outer element", desc: "Evaluating the quality and effectiveness of past governance decisions — not just updating controls, but asking whether the right decisions were made.", color: "#EF9F27", value: 1 },
             { name: "Feedback loop", label: "Outer element", desc: "Collecting and applying usage data and incident reports to drive evidence-based governance improvements over time.", color: "#EF9F27", value: 1 },
-            { name: "Cross-sector collab.", label: "Outer element", desc: "Actively engaging with peers, regulators, and the broader biosecurity community — grounded in RAND's recommendation for regular cross-sector convenings.", color: "#EF9F27", value: 1 }
+            { name: "Cross-sector collaboration", label: "Outer element", desc: "Actively engaging with peers, regulators, and the broader biosecurity community — grounded in RAND's recommendation for regular cross-sector convenings.", color: "#EF9F27", value: 1 }
           ]
         }
       ]
